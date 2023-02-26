@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Реєстрація</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="Cache-Control" content="no-cache">
+		
+		<style>
+		body{
+			display:flex;
+			justify-content:center;
+			
+		}
+		
+		.u-form{
+			width:300px;
+		}
+		
+		.u-form > input{
+			width:100%;
+			margin-bottom:5px;
+		}
+		</style>
+		<script>
+window.addEventListener('DOMContentLoaded', function(event) {
+	let url="./srv.php";
+	let form=document.querySelector(".u-form");
+	let btn=document.querySelector("button"); 	
+	let msg=document.querySelector("p")	    
+	let pswd=document.getElementById("pswd");
+	let confirmPswd=document.getElementById("confirmPswd");
+	let name=document.getElementById("name");
+	let email=document.getElementById("email");
+	let lastName=document.getElementById("lastName");
+
+	function drawRegisterMessage(message)
+	{
+		let messageNode=document.createElement("p");
+		messageNode.classList.add("u-message");
+		messageNode.innerHTML=message;
+		form.remove();
+		document.body.append(messageNode);
+	}
+	
+	function validate(){
+		let result=true;
+		let errors=new Array();
+
+		if (email.value.length==0)
+			{
+				errors.push("Не введена електронна адреса");	
+			}
+		else
+			{
+				if (email.value.indexOf("@")==-1)
+					{
+						errors.push("Електронна адреса повинна містити в собі \"@\"");
+					}
+			}
+
+		if ((pswd.value.length==0)||(confirmPswd.value.length==0))
+			{
+				errors.push("Не введене поле пароль або підтвердження пароля.");
+			}
+		else	
+			{
+				if (pswd.value!==confirmPswd.value)
+					{errors.push("Поля пароль та підтвердження пароля не співпадають.");}
+				
+			}
+
+		if (errors.length>0)
+			{
+				result=errors;
+			}
+		
+		return result;
+	}	
+
+	function send()
+	{
+		let formData=new FormData();
+		formData.append("name", name.value);
+		formData.append("lastName", lastName.value);
+		formData.append("email", email.value);
+		formData.append("pswd", pswd.value);
+		formData.append("confirmPswd", confirmPswd.value);
+		let xhr=new XMLHttpRequest();
+		xhr.onload = function() {
+			if(String(xhr.status)[0]=="2")
+			{
+				let response=JSON.parse(xhr.responseText);
+				if (response.status==false)
+					{
+						msg.innerHTML=response.answer.join("<br>");
+					}
+				else
+					{
+						drawRegisterMessage(response.answer.join("<br>"));
+					}
+			}
+		}
+		xhr.open("POST", url, true);
+		xhr.send(formData);
+	}
+	
+		
+	btn.addEventListener("click",function(event){
+		let validateRes=validate()
+		if (validateRes===true)
+			{
+				send();	
+			}
+		else
+			{
+				msg.innerHTML=validateRes.join("<br>");	
+			}
+	})
+
+});
+		
+		</script>
+	</head>
+	<body>
+	
+	<div class="u-form">
+		<p></p>
+		<input type="text" placeholder="Ім'я" id="name">
+		<input type="text" placeholder="Прізвище" id="lastName">
+		<input type="text" placeholder="e-mail" id ="email">
+		<input type="password" placeholder="пароль" id ="pswd">
+		<input type="password" placeholder="повторити пароль" id ="confirmPswd">
+		<button>відправити</button>
+	</div>
+	
+	
+	</body>			
+</html>
+	
